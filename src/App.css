@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  background: #ffffff;
+  color: #1a1a1a;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ── */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+/* ── Navbar ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgb(255, 255, 255);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.navbar__inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.navbar__logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar__logo-icon {
+  width: 30px;
+  height: 30px;
+  background: #0f172a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.navbar__logo-text {
+  font-weight: 800;
+  font-size: 16px;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+}
+/* เลือกปุ่มที่มีคลาส nav-link */
+button.nav-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit; /* ให้ใช้ Font เดียวกับเพื่อน */
+  cursor: pointer;
+  outline: inherit;
+  display: flex; /* ปรับให้ alignment ตรงกับ Link ถ้าจำเป็น */
+  align-items: center;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.03em;
+}
+
+/* แถม: ทำให้ทุกลิงก์ใน Navbar มี Cursor เป็นมือ */
+.nav-link {
+  cursor: pointer;
+  text-decoration: none;
+   color: #0f172a;
+  /* สไตล์อื่นๆ ของคุณ เช่น color, padding */
+}
+
+/* Nav links */
+.navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.nav-link:hover {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.nav-link--active {
+  background: #0f172a;
+  color: #fff;
+}
+
+
+
+/* ── Main content ── */
+.main {
+  flex: 1;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* ── Page transition ── */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeSlideUp 0.22s ease both;
+}
+
+/* ── 404 ── */
+.not-found {
+  text-align: center;
+  padding: 80px 20px;
+  color: #94a3b8;
+}
+
+.not-found__code {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.not-found__label {
+  font-weight: 600;
+  color: #64748b;
+}
