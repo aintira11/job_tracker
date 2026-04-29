@@ -402,4 +402,41 @@
 .sort-select:focus {
   border-color: #0f172a;
 }
+
+/* ── Days ago pill ── */
+.job-card__days-ago {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #0f172a;
+  border-radius: 999px;
+  padding: 2px 9px;
+}
  
+/* ── Delete button ── */
+.btn--danger {
+  background: #fff;
+  color: #dc2626;
+  border: 1.5px solid #fecaca;
+}
+ 
+.btn--danger:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+ 
+/* ── Delete modal warning text ── */
+.delete-modal__warning {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  background: #fef2f2;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+} 

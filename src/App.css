@@ -118,6 +118,26 @@ button.nav-link {
   color: #fff;
 }
 
+/* Profile Avatar */
+.navbar__profile {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.navbar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+  transition: border-color 0.15s;
+}
+
+.navbar__avatar:hover {
+  border-color: #0f172a;
+}
+
 
 
 /* ── Main content ── */

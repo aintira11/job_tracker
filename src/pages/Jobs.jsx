@@ -6,10 +6,10 @@ function navigateTo(to) {
   window.history.pushState({}, '', to)
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
-
+ 
 /* ── Constants ── */
 const STATUS_OPTIONS = ['applied', 'interview', 'offer', 'rejected', 'withdrawn']
-
+ 
 const STATUS_CONFIG = {
   applied:   { label: 'Applied',   color: '#3b82f6', bg: '#eff6ff', border: '#93c5fd' },
   interview: { label: 'Interview', color: '#f59e0b', bg: '#fffbeb', border: '#fcd34d' },
@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
   rejected:  { label: 'Rejected',  color: '#ef4444', bg: '#fef2f2', border: '#fca5a5' },
   withdrawn: { label: 'Withdrawn', color: '#6b7280', bg: '#f9fafb', border: '#d1d5db' },
 }
-
+ 
 /* ── StatusBadge ── */
 function StatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status?.toLowerCase()] ?? {
@@ -33,13 +33,13 @@ function StatusBadge({ status }) {
     </span>
   )
 }
-
+ 
 /* ── StatusModal ── */
 function StatusModal({ job, onClose, onSave }) {
   const [selected, setSelected] = useState(job.status?.toLowerCase() || 'applied')
   const [saving, setSaving]     = useState(false)
   const [err, setErr]           = useState('')
-
+ 
   const handleSave = async () => {
     setSaving(true)
     setErr('')
@@ -57,7 +57,7 @@ function StatusModal({ job, onClose, onSave }) {
       setSaving(false)
     }
   }
-
+ 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -67,7 +67,7 @@ function StatusModal({ job, onClose, onSave }) {
           <br />
           <span className="modal__subtitle">{job.position || '—'}</span>
         </div>
-
+ 
         <div className="status-options">
           {STATUS_OPTIONS.map(s => {
             const cfg    = STATUS_CONFIG[s]
@@ -89,9 +89,9 @@ function StatusModal({ job, onClose, onSave }) {
             )
           })}
         </div>
-
+ 
         {err && <div className="modal__error">{err}</div>}
-
+ 
         <div className="modal__footer">
           <button className="btn btn--outline" onClick={onClose}>Cancel</button>
           <button
@@ -107,7 +107,7 @@ function StatusModal({ job, onClose, onSave }) {
     </div>
   )
 }
-
+ 
 /* ── EditModal ── */
 function EditModal({ job, onClose, onSave }) {
   const [form, setForm] = useState({
@@ -119,9 +119,9 @@ function EditModal({ job, onClose, onSave }) {
   })
   const [saving, setSaving] = useState(false)
   const [err, setErr]       = useState('')
-
+ 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }))
-
+ 
   const handleSave = async () => {
     // backend skips empty strings — only send fields that have a value
     const payload = Object.fromEntries(
@@ -147,7 +147,7 @@ function EditModal({ job, onClose, onSave }) {
       setSaving(false)
     }
   }
-
+ 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
@@ -155,7 +155,7 @@ function EditModal({ job, onClose, onSave }) {
         <div className="modal__title" style={{ marginBottom: 16 }}>
           {job.company || 'Untitled'}
         </div>
-
+ 
         <div className="edit-form">
           <div className="form-field">
             <label>Company</label>
@@ -178,9 +178,9 @@ function EditModal({ job, onClose, onSave }) {
             <textarea value={form.note} onChange={set('note')} rows={3} placeholder="Any notes…" />
           </div>
         </div>
-
+ 
         {err && <div className="modal__error">{err}</div>}
-
+ 
         <div className="modal__footer">
           <button className="btn btn--outline" onClick={onClose}>Cancel</button>
           <button
@@ -196,13 +196,62 @@ function EditModal({ job, onClose, onSave }) {
     </div>
   )
 }
-
+ 
+/* ── DeleteModal ── */
+function DeleteModal({ job, onClose, onConfirm }) {
+  const [deleting, setDeleting] = useState(false)
+ 
+  const handleConfirm = async () => {
+    setDeleting(true)
+    await onConfirm(job)
+    setDeleting(false)
+  }
+ 
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal__eyebrow">Delete Job</div>
+        <div className="modal__title">
+          {job.company || 'Unknown'}
+          <br />
+          <span className="modal__subtitle">{job.position || '—'}</span>
+        </div>
+        <p className="delete-modal__warning">
+          This action cannot be undone. The application will be permanently removed.
+        </p>
+        <div className="modal__footer">
+          <button className="btn btn--outline" onClick={onClose}>Cancel</button>
+          <button
+            className="btn btn--danger"
+            onClick={handleConfirm}
+            disabled={deleting}
+            style={deleting ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
+          >
+            {deleting ? 'Deleting…' : 'Delete'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+ 
+/* ── helpers ── */
+function daysAgo(dateStr) {
+  if (!dateStr) return null
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  if (days === 0) return 'today'
+  if (days === 1) return '1 day ago'
+  return `${days} days ago`
+}
+ 
 /* ── JobCard ── */
-function JobCard({ job, onEditJob, onUpdateStatus }) {
+function JobCard({ job, onEditJob, onUpdateStatus, onDeleteJob }) {
   const dateStr = job.appliedDate
     ? new Date(job.appliedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
     : ''
-
+  const daysStr = daysAgo(job.appliedDate)
+ 
   return (
     <li className="job-card">
       <div className="job-card__top">
@@ -212,7 +261,7 @@ function JobCard({ job, onEditJob, onUpdateStatus }) {
         </div>
         {job.status && <StatusBadge status={job.status} />}
       </div>
-
+ 
       {(job.source || dateStr) && (
         <div className="job-card__meta">
           {job.source && (
@@ -232,11 +281,20 @@ function JobCard({ job, onEditJob, onUpdateStatus }) {
               {dateStr}
             </span>
           )}
+          {daysStr && (
+            <span className="job-card__days-ago">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {daysStr}
+            </span>
+          )}
         </div>
       )}
-
+ 
       {job.note && <div className="job-card__note">{job.note}</div>}
-
+ 
       <div className="job-card__actions">
         <button className="btn btn--outline" onClick={() => onEditJob(job)}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -252,11 +310,20 @@ function JobCard({ job, onEditJob, onUpdateStatus }) {
           </svg>
           Update Status
         </button>
+        <button className="btn btn--danger" onClick={() => onDeleteJob(job)}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Delete
+        </button>
       </div>
     </li>
   )
 }
-
+ 
 /* ── Jobs page ── */
 export default function Jobs() {
   const [jobs, setJobs]             = useState([])
@@ -264,9 +331,10 @@ export default function Jobs() {
   const [error, setError]           = useState('')
   const [statusJob, setStatusJob]   = useState(null)
   const [editJob, setEditJob]       = useState(null)
+  const [deleteJob, setDeleteJob]   = useState(null)
   const [filter, setFilter]         = useState('all')
   const [sort, setSort]             = useState('newest')
-
+ 
   useEffect(() => {
     let mounted = true
     const run = async () => {
@@ -292,17 +360,28 @@ export default function Jobs() {
     run()
     return () => { mounted = false }
   }, [])
-
+ 
   const handleJobUpdated = (id, fields) => {
     setJobs(prev => prev.map(j => j.id === id ? { ...j, ...fields } : j))
   }
-
+ 
+  const handleDeleteConfirmed = async (job) => {
+    try {
+      const { res, data } = await apiFetch(`/jobs/${job.id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error(data?.error || 'Delete failed')
+      setJobs(prev => prev.filter(j => j.id !== job.id))
+      setDeleteJob(null)
+    } catch (e) {
+      alert(e.message)
+    }
+  }
+ 
   const counts = jobs.reduce((acc, j) => {
     const s = j.status?.toLowerCase() || 'unknown'
     acc[s] = (acc[s] || 0) + 1
     return acc
   }, {})
-
+ 
   const filtered = (filter === 'all' ? jobs : jobs.filter(j => j.status?.toLowerCase() === filter))
     .slice()
     .sort((a, b) => {
@@ -310,7 +389,7 @@ export default function Jobs() {
       const dateB = b.appliedDate ? new Date(b.appliedDate) : new Date(0)
       return sort === 'newest' ? dateB - dateA : dateA - dateB
     })
-
+ 
   const filterTabs = [
     { key: 'all', label: 'All', count: jobs.length },
     ...STATUS_OPTIONS.map(s => ({ key: s, label: STATUS_CONFIG[s].label, count: counts[s] || 0 })),
@@ -389,11 +468,11 @@ export default function Jobs() {
 
       {/* States */}
       {loadStatus === 'loading' && <div className="jobs-loading">Loading…</div>}
-
+ 
       {loadStatus === 'error' && (
         <div className="jobs-error">{error || 'Load jobs failed'}</div>
       )}
-
+ 
       {loadStatus === 'ready' && jobs.length === 0 && (
         <div className="jobs-empty">
           <div className="jobs-empty__icon">📋</div>
@@ -401,7 +480,7 @@ export default function Jobs() {
           <div className="jobs-empty__sub">Start by adding a job application</div>
         </div>
       )}
-
+ 
       {filtered.length > 0 && (
         <ul className="job-list">
           {filtered.map((job, idx) => (
@@ -410,15 +489,16 @@ export default function Jobs() {
               job={job}
               onEditJob={setEditJob}
               onUpdateStatus={setStatusJob}
+              onDeleteJob={setDeleteJob}
             />
           ))}
         </ul>
       )}
-
+ 
       {loadStatus === 'ready' && jobs.length > 0 && filtered.length === 0 && (
         <div className="jobs-empty-filter">No jobs with this status</div>
       )}
-
+ 
       {statusJob && (
         <StatusModal
           job={statusJob}
@@ -426,12 +506,20 @@ export default function Jobs() {
           onSave={handleJobUpdated}
         />
       )}
-
+ 
       {editJob && (
         <EditModal
           job={editJob}
           onClose={() => setEditJob(null)}
           onSave={handleJobUpdated}
+        />
+      )}
+ 
+      {deleteJob && (
+        <DeleteModal
+          job={deleteJob}
+          onClose={() => setDeleteJob(null)}
+          onConfirm={handleDeleteConfirmed}
         />
       )}
     </div>
