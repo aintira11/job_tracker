@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import { apiFetch, setToken } from '../lib/api.js'
+import { login } from '../models/user.js'
 import '../style/Login.css'
+
+function navigateTo(to) {
+  window.history.pushState({}, '', to)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail]           = useState('')
@@ -13,17 +18,7 @@ export default function Login({ onLoginSuccess }) {
     setError('')
     setIsSubmitting(true)
     try {
-      const { res, data } = await apiFetch('/login', {
-        method: 'POST',
-        skipAuth: true,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      if (!res.ok) {
-        setError((data && (data.message || data.error)) || `Login failed (${res.status})`)
-        return
-      }
-      if (data?.token) setToken(data.token)
+      await login(email, password)
       onLoginSuccess?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
@@ -94,7 +89,22 @@ export default function Login({ onLoginSuccess }) {
           <button className="login-btn" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Signing in…' : 'Sign in'}
           </button>
+        <button
+    type="button"
+    onClick={() => navigateTo('/register')}
+    style={{
+      background: 'none',
+      border: 'none',
+      color: '#2563eb',
+      cursor: 'pointer',
+      textDecoration: 'underline',
+      padding: 0
+    }}
+  >
+    Sign up
+  </button>
         </form>
+        
 
       </div>
     </div>

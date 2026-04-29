@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import Login from './pages/Login.jsx'
+import Register from './pages/register.jsx'
 import Jobs from './pages/Jobs.jsx'
 import AddJob from './pages/AddJob.jsx'
+import Profile from './pages/profile.jsx'
 import { getToken } from './lib/api.js'
+import { getUser, fetchUser, logout as userLogout } from './models/user.js'
 import './App.css'
 
 /* ─── Router hook ─── */
@@ -43,17 +46,10 @@ function Link({ to, children, className }) {
 }
 
 /* ─── Navbar ─── */
-function Navbar({ pathname }) {
+function Navbar({ pathname, user, onLogout }) {
   const isJobs   = pathname === '/' || pathname === '/jobs'
   const isAddJob = pathname === '/jobs/new'
-  // const Logout = pathname === '/login' ? null : () => {
-  //   localStorage.removeItem('token')
-  //   window.location.href = '/login'
-  // }
-    const Logout = () => {
-    localStorage.removeItem('token')
-    navigateTo('/login')
-  }
+  const isProfile = pathname === '/me'
 
   return (
     <header className="navbar">
@@ -72,7 +68,19 @@ function Navbar({ pathname }) {
         <nav className="navbar__nav">
           <Link to="/jobs"     className={`nav-link${isJobs   ? ' nav-link--active' : ''}`}>My Jobs</Link>
           <Link to="/jobs/new" className={`nav-link${isAddJob ? ' nav-link--active' : ''}`}>+ Add Job</Link>
-          <button className="nav-link" onClick={() => { localStorage.removeItem('token'); navigateTo('/login') }}style = {{cursor: 'pointer'}}>
+          <Link to="/me" className={`nav-link${isProfile ? ' nav-link--active' : ''}`}>Profile</Link>
+          {/* Profile Avatar */}
+          {user && (
+            <Link to="/me" className="navbar__profile" title="Profile">
+              <img 
+                src={user.avatarUrl || 'https://via.placeholder.com/32'} 
+                alt="Profile" 
+                className="navbar__avatar"
+              />
+            </Link>
+          )}
+          
+          <button className="nav-link" onClick={onLogout} style = {{cursor: 'pointer'}}>
           Logout
         </button>
         </nav>
@@ -82,10 +90,10 @@ function Navbar({ pathname }) {
 }
 
 /* ─── Layout ─── */
-function AppLayout({ children, pathname }) {
+function AppLayout({ children, pathname, user, onLogout }) {
   return (
     <div className="app">
-      <Navbar pathname={pathname} />
+      <Navbar pathname={pathname} user={user} onLogout={onLogout} />
       <main className="main">
         <div className="page-enter" key={pathname}>
           {children}
@@ -112,18 +120,38 @@ function NotFound() {
 export default function App() {
   const { pathname, navigate } = usePathname()
   const token = getToken()
+  const [user, setUser] = useState(() => getUser() || null)
+
+  // ดึงข้อมูล user เมื่อ login แล้ว (กรณี session หมดอายุ)
+  useEffect(() => {
+    const loadUser = async () => {
+      const userData = await fetchUser()
+      if (userData) setUser(userData)
+    }
+    if (token) loadUser()
+  }, [token])
 
   useEffect(() => {
-    if (!token && pathname !== '/login') navigate('/login', { replace: true })
+    if (!token && pathname !== '/login' && pathname !== '/register') navigate('/login', { replace: true })
   }, [token, pathname, navigate])
+
+  // ฟังก์ชัน logout
+  const handleLogout = () => {
+    userLogout()
+    navigateTo('/login')
+  }
 
   if (pathname === '/login') {
     return <Login onLoginSuccess={() => navigate('/jobs', { replace: true })} />
   }
 
+  if (pathname === '/register') {
+    return <Register />
+  }
+
   if (pathname === '/jobs/new') {
     return (
-      <AppLayout pathname={pathname}>
+      <AppLayout pathname={pathname} user={user} onLogout={handleLogout}>
         <AddJob
           onCreated={() => navigate('/jobs', { replace: true })}
           onCancel={() => navigate('/jobs')}
@@ -132,9 +160,21 @@ export default function App() {
     )
   }
 
+  if (pathname === '/me') {
+    return (
+      <AppLayout pathname={pathname} user={user} onLogout={handleLogout}>
+        <Profile />
+      </AppLayout>
+    )
+  }
+
   const content = (pathname === '/' || pathname === '/jobs')
     ? <Jobs />
     : <NotFound />
 
-  return <AppLayout pathname={pathname}>{content}</AppLayout>
+  return (
+    <AppLayout pathname={pathname} user={user} onLogout={handleLogout}>
+      {content}
+    </AppLayout>
+  )
 }
