@@ -7,6 +7,7 @@ import Profile from './pages/profile.jsx'
 import { getToken } from './lib/api.js'
 import { getUser, fetchUser, logout as userLogout } from './models/user.js'
 import './App.css'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 
 /* ─── Router hook ─── */
 function usePathname() {
