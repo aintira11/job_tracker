@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { apiFetch } from '../lib/api.js'
 import { getUser, updateUserSession, fetchUser } from '../models/user.js'
-import '../style/Profile.css'
+import '../style/profile.css'
 
 /* ── Change Password Modal ── */
 function ChangePasswordModal({ onClose }) {
