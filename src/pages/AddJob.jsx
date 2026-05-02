@@ -1,15 +1,24 @@
 import { useState } from 'react'
 import { apiFetch } from '../lib/api.js'
 import { createEmptyJob } from '../models/jobs.js'
-import '../style/AddJob.css' // นำเข้า CSS Module
+import '../style/AddJob.css'
 
 function navigateTo(to) {
   window.history.pushState({}, '', to)
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
 
+const SOURCE_OPTIONS = ['LinkedIn', 'Indeed', 'JobThai', 'JobsDB', 'Jobbkk', 'Other']
+const STATUS_OPTIONS = [
+  { value: 'applied',   label: 'Applied' },
+  { value: 'interview', label: 'Interview' },
+  { value: 'offer',     label: 'Offer' },
+  { value: 'rejected',  label: 'Rejected' },
+  { value: 'withdrawn', label: 'Withdrawn' },
+]
+
 export default function AddJob({ onCreated, onCancel }) {
-  const [job, setJob] = useState(createEmptyJob())
+  const [job, setJob] = useState({ ...createEmptyJob(), status: 'applied' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,16 +33,12 @@ export default function AddJob({ onCreated, onCancel }) {
     try {
       const { res, data } = await apiFetch('/jobs', {
         method: 'POST',
-        body: JSON.stringify(job)
+        body: JSON.stringify(job),
       })
-      if (res.status === 401 || res.status === 403) {
-        navigateTo('/login')
-        return
-      }
+      if (res.status === 401 || res.status === 403) { navigateTo('/login'); return }
       if (!res.ok) throw new Error(data?.error || 'Create job failed')
-      
       onCreated?.(data)
-      setJob(createEmptyJob())
+      setJob({ ...createEmptyJob(), status: 'applied' })
     } catch (err) {
       setError(err.message || 'Create job failed')
     } finally {
@@ -42,90 +47,122 @@ export default function AddJob({ onCreated, onCancel }) {
   }
 
   return (
-    <div className="container">
-      <h1 className="header">🚀 Add New Job</h1>
-      <form onSubmit={handleSubmit} className="form">
-        
-        <div className="fieldGroup">
-          <label className="label">Company</label>
-          <input
-            className="input"
-            placeholder="e.g. Google, Line"
-            value={job.company}
-            onChange={(e) => handleChange('company', e.target.value)}
-            required
-          />
-        </div>
+    <div className="addjob-page">
+      {/* Page header */}
+      <div className="addjob-page__header">
+        <h1 className="addjob-page__title">Add Job</h1>
+        <p className="addjob-page__sub">Log a new opportunity to your tracking pipeline.</p>
+      </div>
 
-        <div className="fieldGroup">
-          <label className="label">Position</label>
-          <input
-            className="input"
-            placeholder="e.g. Frontend Developer"
-            value={job.position}
-            onChange={(e) => handleChange('position', e.target.value)}
-            required
-          />
-        </div>
+      {/* Card */}
+      <div className="addjob-card">
+        <form onSubmit={handleSubmit} className="addjob-form">
 
-        <div className="row">
-          <div className="fieldGroup">
-            <label className="label">Source</label>
+          {/* Company Name */}
+          <div className="addjob-field">
+            <label className="addjob-label">
+              Company Name <span className="addjob-required">*</span>
+            </label>
             <input
-              className="input"
-              placeholder="LinkedIn..."
-              value={job.source}
-              onChange={(e) => handleChange('source', e.target.value)}
+              className="addjob-input"
+              placeholder="e.g. Acme Corp"
+              value={job.company}
+              onChange={(e) => handleChange('company', e.target.value)}
+              required
             />
           </div>
-          <div className="fieldGroup">
-            <label className="label">Applied Date</label>
-            <input
-              type="date"
-              className="input"
-              value={job.appliedDate}
-              onChange={(e) => handleChange('appliedDate', e.target.value)}
+
+          {/* Position + Applied Date */}
+          <div className="addjob-row">
+            <div className="addjob-field">
+              <label className="addjob-label">Position</label>
+              <input
+                className="addjob-input"
+                placeholder="e.g. Senior UI Designer"
+                value={job.position}
+                onChange={(e) => handleChange('position', e.target.value)}
+              />
+            </div>
+            <div className="addjob-field">
+              <label className="addjob-label">Applied date</label>
+              <input
+                type="date"
+                className="addjob-input"
+                value={job.appliedDate}
+                onChange={(e) => handleChange('appliedDate', e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Source + Status */}
+          <div className="addjob-row">
+            <div className="addjob-field">
+              <label className="addjob-label">Source</label>
+              <div className="addjob-select-wrap">
+                <select
+                  className="addjob-input addjob-select"
+                  value={job.source}
+                  onChange={(e) => handleChange('source', e.target.value)}
+                >
+                  <option value="">Select source</option>
+                  {SOURCE_OPTIONS.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <svg className="addjob-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+            </div>
+            <div className="addjob-field">
+              <label className="addjob-label">Status</label>
+              <div className="addjob-select-wrap">
+                <select
+                  className="addjob-input addjob-select"
+                  value={job.status}
+                  onChange={(e) => handleChange('status', e.target.value)}
+                >
+                  {STATUS_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+                <svg className="addjob-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Note */}
+          <div className="addjob-field">
+            <label className="addjob-label">Note</label>
+            <textarea
+              className="addjob-input addjob-textarea"
+              placeholder="Add details about the hiring manager, interview rounds, or salary expectations..."
+              value={job.note}
+              onChange={(e) => handleChange('note', e.target.value)}
             />
           </div>
-        </div>
 
-        <div className="fieldGroup">
-          <label className="label">Status</label>
-          <select
-            className="input"
-            value={job.status}
-            onChange={(e) => handleChange('status', e.target.value)}
-          >
-            <option value="open">Open</option>
-            <option value="applied">Applied</option>
-            <option value="interview">Interview</option>
-            <option value="offer">Offer</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
+          {error && <div className="addjob-error">{error}</div>}
 
-        <div className="fieldGroup">
-          <label className="label">Note</label>
-          <textarea
-            className="input"
-            style={{ minHeight: '80px', resize: 'vertical' }}
-            placeholder="Add some details..."
-            value={job.note}
-            onChange={(e) => handleChange('note', e.target.value)}
-          />
-        </div>
+          {/* Footer */}
+          <div className="addjob-divider" />
+          <div className="addjob-actions">
+            <button type="button" onClick={onCancel} className="addjob-btn addjob-btn--cancel">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="addjob-btn addjob-btn--save"
+            >
+              {isSubmitting ? 'Saving…' : 'Save'}
+            </button>
+          </div>
 
-        {error && <div className="errorText">{error}</div>}
-
-        <div className="actions">
-          <button type="button" onClick={onCancel} className="buttonSecondary">
-            Cancel
-          </button>
-          <button disabled={isSubmitting} className="buttonPrimary">
-            {isSubmitting ? 'Saving...' : 'Save Job'}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   )
 }
