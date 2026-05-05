@@ -1,16 +1,46 @@
-# React + Vite
+# 🧑‍💼 Job Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack web application for tracking job applications.  
+Users can manage their job search process, including adding, updating, and tracking application status in one place.
 
-Currently, two official plugins are available:
+🔗 Live Demo: https://job-tracker-nu-jade.vercel.app  
+📦 Repository: https://github.com/aintira11/job_tracker
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 🔐 Authentication (Email/Password + Google Login)
+- 🪪 JWT-based session management
+- 📌 Create, update, delete job applications (CRUD)
+- 📊 Filter jobs by status (Open, Applied, Interview, etc.)
+- 🧑 Profile management (update name, avatar)
+- 🖼 Upload profile image via Cloudinary
+- 🌐 Persistent login using localStorage
+- 🔒 Protected routes with middleware
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠 Tech Stack
+
+### Frontend
+- React
+- Vite
+- CSS
+
+### Backend
+- Go (Golang)
+- Gin Framework
+- MongoDB
+
+### Services
+- Firebase Authentication (Google Login)
+- Cloudinary (Image Upload)
+
+### Deployment
+- Frontend: Vercel
+- Backend: Render
+
+---
+
+## 📁 Project Structure
