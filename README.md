@@ -42,5 +42,3 @@ Users can manage their job search process, including adding, updating, and track
 - Backend: Render
 
 ---
-
-## 📁 Project Structure
